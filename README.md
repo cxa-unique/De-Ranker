@@ -25,8 +25,8 @@ Other code and instructions for the training of De-Ranker will release soon.
     Herein, we take the initial ranking list on TREC 2019 DL Track as example.
     In each link folder, it contains 11 files, one is the original clean one, and 
     others are noisy ones. 
-    - Clean: `dl19_43_bm25_100_Clean_text.tar.gz`
-    - Noisy: `dl19_43_bm25_100_{noise_type}_text.tar.gz` (10 separate files with different types of noise). 
+    - Clean: `dl19_43_bm25_1k_Clean_text.tar.gz`, BM25 top-1000 candidates with original clean text.
+    - Noisy: `dl19_43_bm25_1k_{noise_type}_text.tar.gz`, 10 separate files with different types of noise. 
     - Format: `q_id \t p_id \t q_text \t p_text \n`
     
 ### Model:
