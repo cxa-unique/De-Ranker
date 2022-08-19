@@ -7,7 +7,7 @@ We provide the key script to simulate textual noise into top candidates or
 into the whole corpus: `simulate_textual_noise.py`. 
 Before using it, you need to install `TextFlint`, `spaCy` and `NLTK` toolkits. 
 
-Other code and instructions for the training of De-Ranker will release soon.
+Other code and instructions for model training will come soon.
 
 ## Resources
 ### Synthetic Noisy Data:
