@@ -495,7 +495,7 @@ def modify_corpus(output_corpus_file, p_text_dict, p_ids_list, nlp):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='The script to simulate textual noise into top candidates '
-                                                 'or into the whole corpus.')
+                                                 'or into the whole corpus, such as MS MARCO.')
     parser.add_argument('--simulate_mode',
                         default='top',
                         required=True,
