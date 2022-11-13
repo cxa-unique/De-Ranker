@@ -1,13 +1,90 @@
 # De-Ranker
 This repository contains the code and resources for our paper:
-- Dealing with Textual Noise for Robust and Effective BERT Re-ranking. *Under Review*.
+- [Dealing with Textual Noise for Robust and Effective BERT Re-ranking](https://www.sciencedirect.com/science/article/pii/S0306457322002369). 
+In Information Processing & Management, Volume 60, Issue 1, 2023.
 
-## Code
-We provide the key script to simulate textual noise into top candidates or 
-into the whole corpus: `simulate_textual_noise.py`. 
-Before using it, you need to install `TextFlint`, `spaCy` and `NLTK` toolkits. 
+![image](https://github.com/cxa-unique/De-Ranker/blob/main/deranker_framework.png)
 
-Other code and instructions for model training will come soon.
+## Textual Noise Simulation
+There is a lack of available parallel clean and noisy IR dataset in order to carry out 
+the noise-robustness investigation on BERT re-ranker. Meanwhile, it is infeasible to 
+clean unstructured raw text within millions of documents in a noisy dataset, and
+a more common approach is to inject synthetic noise into a relatively clean dataset.
+
+Thus, to carry out a quantitative study, we choose to simulate different *within-document* 
+textual noises, including `NrSentH`, `NrSentM`, `NrSentT`, `DupSent`, `RevSent`, `NoSpace`, 
+`RepSyns`, `ExtraPunc`, `NoPunc`, `MisSpell`. You can find more details of these textual noises 
+in our paper (Section 2.2). Herein, you can use `simulate_textual_noise.py` script to insert 
+synthetic textual noise into top candidate documents or into the whole corpus. Before using it, 
+you may need to install `TextFlint`, `spaCy` and `NLTK` toolkits. 
+```
+# insert one specific noise into top candidates
+python simulate_textual_noise.py --simulate_mode 'top'
+                                 --qrels_file # annotations
+                                 --top_file # top candidate file
+                                 --query_file # query file 
+                                 --output_pairs_file # output noisy top candidate file
+                                 --noise_type 'NrSentH' or others
+
+# insert all types of nosie into original corpus
+python simulate_textual_noise.py --simulate_mode 'corpus'
+                                 --corpus_file # corpus file 
+                                 --output_corpus_file # output noisy corpus file
+```
+Besides, we have provided our generated synthetic noisy data on top of MS MARCO dataset
+in [Resources](https://github.com/cxa-unique/De-Ranker/#Resources) for future research.
+
+## Model Training
+Before training, you need to create a new environment `conda create -n deranker python=3.7`, and install 
+a few basic packages, such as `torch==1.3.0`, `tensorflow==1.14.0` and `apex==0.1`.
+
+As for training data, we sample a set of training triples from the official file 
+[qidpidtriples.train.full.2.tsv](https://msmarco.blob.core.windows.net/msmarcoranking/qidpidtriples.train.full.2.tsv.gz) 
+to construct our original training data `D_O` using `sample_train_qidpidtriples.py` script, and 
+we also need to convert training samples into features using `convert_triples_to_features.py` script before training.
+For reproducibility, we release our used training triple ids `train_triples_p1n10_ids.tsv` 
+in [Resources](https://github.com/cxa-unique/De-Ranker/#Resources).
+
+**BERT_O / BERT_O+N:** This is vanilla BERT re-ranker, using a cross-entropy loss to fine-tune BERT model
+with a two-class classification layer. BERT_O is only trained on original training data `D_O`.
+As for simple noise augmentation, we can replace the original text in `D_O` with the corresponding
+noisy version in `MS MARCO w/ Noise` to construct the noisy training data `D_N`. Then, we can add
+noisy training samples in `D_N` into `D_O` to obtain `D_O+N`, and BERT_O+N is trained on this `D_O+N`.
+For both BERT_O and BERT_O+N, you can refer to `vanilla_bert_finetune.sh` for the model training.
+
+**De-Ranker:** This is our proposed noise-tolerant BERT re-ranker, by learning a noise-invariant relevance prediction 
+or representation. we design two versions of De-Ranker using two kinds of denoising methods, namely, Dynamic-Denoising 
+and Static-Denoising, according to whether the supervision signal from original text is changed or not during training.
+Similarly, we can insert the noisy version in `MS MARCO w/ Noise` of original text into `D_O` to obtain a parallel 
+training data `D_O-N`. 
+For both De-Ranker_DD and De-Ranker_SD, you can refer to `deranker_finetune_dd.sh` and `deranker_finetune_sd.sh`
+for the model training, respectively.
+
+
+## Evaluation
+We provide `run_bert_rerank_eval.sh` script to perform re-ranking on initial ranking lists returned by first-stage retrieval models,
+such as BM25. Before that, We also need to convert evaluation samples into features using script `convert_pairs_to_features.py`.
+We release our used synthetic initial ranking lists in [Resources](https://github.com/cxa-unique/De-Ranker/#Resources).
+Each text set (Dev, TREC 2019-2020 DL) contains one original initial ranking list with relatively clean text, 
+and ten types of noisy initial ranking lists. By comparing re-ranking results of BERT_O on these initial ranking lists, 
+we can examine the individual impact of different synthetic textual noises.
+
+In our experiments, we also investigate whether these BERT re-rankers, especially our proposed De-Ranker, can
+effectively tackle natural textual noise in real-world text, we further use 4 widely-used IR datasets 
+([TREC CAR](https://trec-car.cs.unh.edu/datareleases/v2.0-release.html), 
+[ClueWeb09-B](https://lemurproject.org/clueweb09), 
+[Gov2](http://ir.dcs.gla.ac.uk/test_collections/gov2-summary.htm) and
+[Robust04](https://trec.nist.gov/data/t13_robust.html))
+for zero-shot robustness testing, wherein **ClueWeb09-B** and **Gov2** datasets contain lots of textual noise. 
+After preparing data, you can produce initial ranking list in the format of `q_id \t p_id \t q_text \t p_text \n`,
+and use `convert_pairs_to_features.py` and `run_bert_rerank_eval.sh` scripts for re-ranking.
+
+Besides, we use other 14 publicly available datasets in the [BEIR](https://github.com/beir-cellar/beir) benchmark
+to examine the zero-shot domain transfer ability of these BERT re-rankers, which is more in line with practical applications. 
+Herein, we provide `run_beir_retrieve_rerank.sh` script for retrieval and re-ranking on the BEIR benchmark. 
+You may need to download and turn on [Elasticsearch](https://www.elastic.co/cn/downloads/elasticsearch), 
+and also use an another environment with
+ `sentence-transformers==2.2.0`, `transformers==4.18.0`, `torch==1.11.0` and `beir==1.0.0`.
 
 ## Resources
 ### Synthetic Noisy Data:
@@ -30,8 +107,49 @@ Other code and instructions for model training will come soon.
     - Format: `q_id \t p_id \t q_text \t p_text \n`
     
 ### Model:
-The trained ranking models will release soon.
+1. BERT-Base:
+    
+    | BERT_O | De-Ranker_DD | De-Ranker_SD |
+    |--------|--------------|--------------|
+    | [Download]() | [Download]() | [Download]() |
+
+2. ELECTRA-Base<sup>*</sup>:
+    
+    | ELECTRA_O | De-Ranker_DD | De-Ranker_SD |
+    |--------|--------------|--------------|
+    | [Download]() | [Download]() | [Download]() |
+    
+3. ALBERT-Base<sup>*</sup>:
+    
+    | ALBERT_O | De-Ranker_DD | De-Ranker_SD |
+    |--------|--------------|--------------|
+    | [Download]() | [Download]() | [Download]() |
+
+    *The training of our ELECTRA-based and ALBERT-based rerankers is on top of 
+    their PyTorch implementations, namely, [electra_pytorch](https://github.com/lonePatient/electra_pytorch)
+    and [albert_pytorch](https://github.com/lonePatient/albert_pytorch).
+    You need to modify `run_classifier.py` appropriately on the basis of our fine-tuning scripts in this repo.
+
+### Train Triples
+The training triples used in our model training: [Train Triples]().
+- Format: `query id \t positive id \t negative id \n`
+- Each positive passage is coupled with at most 10 negative passages.
 
 
-### Re-ranking Runs:
-The re-ranking run files will release soon.
+## Citation
+If you find our paper/resources useful, please cite:
+```
+@article{ipm_ChenHHSS23,
+  author  = {Xuang Chen and
+             Ben He and
+             Kai Hui and
+             Le Sun and
+             Yingfei Sun},
+  title   = {Dealing with textual noise for robust and effective BERT re-ranking},
+  journal = {Information Processing & Management},
+  volume  = {60},
+  number  = {1},
+  pages   = {103135},
+  year    = {2023}
+}
+```
