@@ -79,14 +79,17 @@ def main():
                         help="CUDA device number")
     parser.add_argument("--eval_file_name",
                         default=None,
-                        type=str)
+                        type=str,
+                        help="The features file for query-passage pairs.")
     parser.add_argument("--cache_file_dir",
                         default=None,
                         type=str,
-                        required=True)
+                        required=True,
+                        help="The cache dir used for data reading.")
     parser.add_argument("--qrels_file",
                         default=None,
-                        type=str)
+                        type=str,
+                        help="The annotation file.")
     parser.add_argument("--data_dir",
                         default=None,
                         type=str,
@@ -96,18 +99,19 @@ def main():
                         default=None,
                         type=str,
                         required=True,
-                        help="The output directory where the model predictions will be written.")
+                        help="The output directory where the re-ranking runs will be written.")
     parser.add_argument("--model_dir",
                         default=None,
                         type=str,
-                        help="The model dir.")
+                        help="The model dir, which contains the model waited for evaluation.")
     parser.add_argument("--eval_batch_size",
                         default=32,
                         type=int,
-                        help="Total batch size for eval.")
+                        help="Batch size for eval.")
     parser.add_argument("--max_seq_length",
                         default=512,
-                        type=int)
+                        type=int,
+                        help="The maximum total input sequence length after tokenization.")
 
     args = parser.parse_args()
     logger.info('The args: {}'.format(args))

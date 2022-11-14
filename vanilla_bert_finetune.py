@@ -41,12 +41,12 @@ def main():
                         default=None,
                         type=str,
                         required=True,
-                        help="The input data dir. Should contain the .tsv files (or other data files) for the task.")
+                        help="The input data dir, which contains the train features file.")
     parser.add_argument("--model",
                         default=None,
                         type=str,
                         required=True,
-                        help="The student model dir.")
+                        help="The model dir, which contains the pre-trained BERT model.")
     parser.add_argument("--output_dir",
                         default=None,
                         type=str,
@@ -55,30 +55,30 @@ def main():
     parser.add_argument("--train_file_name",
                         default=None,
                         type=str,
-                        required=True)
+                        required=True,
+                        help="The train features file, which contains input ids, input_masks, segment_ids.")
     parser.add_argument("--cache_file_dir",
                         default=None,
                         type=str,
-                        required=True)
+                        required=True,
+                        help="The cache dir used for data reading.")
     parser.add_argument("--max_seq_length",
                         default=512,
                         type=int,
-                        help="The maximum total input sequence length after WordPiece tokenization. \n"
-                             "Sequences longer than this will be truncated, and sequences shorter \n"
-                             "than this will be padded.")
+                        help="The maximum total input sequence length after tokenization.")
     parser.add_argument("--do_lower_case",
                         action='store_true',
                         help="Set this flag if you are using an uncased model.")
     parser.add_argument("--train_batch_size",
                         default=32,
                         type=int,
-                        help="Total batch size for training.")
+                        help="Batch size for training.")
     parser.add_argument("--learning_rate",
                         default=1e-5,
                         type=float,
                         help="The initial learning rate for Adam.")
     parser.add_argument("--num_train_epochs",
-                        default=4.0,
+                        default=1.0,
                         type=float,
                         help="Total number of training epochs to perform.")
     parser.add_argument("--warmup_proportion",
@@ -92,17 +92,19 @@ def main():
     parser.add_argument('--seed',
                         type=int,
                         default=42,
-                        help="random seed for initialization")
+                        help="Random seed for initialization")
     parser.add_argument('--gradient_accumulation_steps',
                         type=int,
                         default=1,
                         help="Number of updates steps to accumulate before performing a backward/update pass.")
     parser.add_argument('--eval_step',
                         type=int,
-                        default=1000)
+                        default=1000,
+                        help="The steps to print the loss.")
     parser.add_argument('--save_step',
                         type=int,
-                        default=5000)
+                        default=10000,
+                        help="The steps to save a model checkpoint.")
     parser.add_argument('--fp16', action='store_true',
                         help="Whether to use 16-bit (mixed) precision (through NVIDIA apex) instead of 32-bit")
     parser.add_argument('--fp16_opt_level', type=str, default='O1',
