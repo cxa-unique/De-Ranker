@@ -8,7 +8,7 @@ import torch.nn.functional as F
 from torch.utils.data import SequentialSampler
 from bert.modeling import BertForSequenceClassification
 from features_csv_reader import eval_dataloader
-from evaluation import evaluate_metrics
+from dl_trec_eval import evaluate_metrics
 from msmarco_mrr_eval import cal_mrr
 
 
@@ -132,11 +132,7 @@ def main():
 
     if 'dev' in args.qrels_file:
         query_num, mrr, mrr_ten, _ = cal_mrr(args.qrels_file, trec_file_dir)
-        print('#####################')
-        print('query_num: ' + str(query_num))
-        print('MRR: ' + str(mrr))
-        print('MRR@10: ' + str(mrr_ten))
-        print('#####################')
+        print('Eval: query_num: {}, MRR: {}, MRR@10: {}'.format(query_num, mrr, mrr_ten))
     else:
         metrics_dict = evaluate_metrics(args.qrels_file, trec_file_dir,
                                         ['recip_rank', 'ndcg_cut_10', 'map', 'recall_100', 'recall_500', 'recall_1000'])

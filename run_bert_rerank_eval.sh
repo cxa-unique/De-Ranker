@@ -7,8 +7,8 @@ qrel=path_to/qrels.dev.small.tsv
 #qrel=path_to/2020-qrels-pass-final.txt
 
 data_dir=./msmarco_passage_data/processed/initial_ranking
-model_dir=./msmarco_passage_data/google_bert_base_ft_models/bert_o/lr3e-6_bs32_epoch1/checkpoint-260000
-output_dir=./msmarco_passage_data/google_bert_base_ft_results/bert_o/lr3e-6_bs32_epoch1/checkpoint-260000
+model_dir=./msmarco_passage_data/google_bert_base_ft_models/bert_o/lr3e-6_bs32_epoch1/checkpoint-160000
+output_dir=./msmarco_passage_data/google_bert_base_ft_results/bert_o/lr3e-6_bs32_epoch1/checkpoint-160000
 
 noise_types=(Clean NrSentH NrSentM NrSentT DupSent RevSent NoSpace RepSyns ExtraPunc NoPunc MisSpell)
 for n_type in ${modified_type[@]}
