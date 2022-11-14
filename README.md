@@ -6,9 +6,9 @@ In Information Processing & Management, Volume 60, Issue 1, 2023.
 ![image](https://github.com/cxa-unique/De-Ranker/blob/main/deranker_framework.png)
 
 ## Textual Noise Simulation
-In IR community, there is a lack of available parallel clean and noisy dataset to support
-the noise-robustness investigation on BERT re-ranker. Meanwhile, it is usually infeasible to 
-clean the unstructured raw text within millions of documents in a noisy dataset, and
+In information retrieval (IR) community, there is a lack of available parallel clean and noisy 
+dataset to support a noise-robustness investigation on BERT re-ranker. Meanwhile, it is usually 
+infeasible to clean the unstructured raw text within millions of documents in a noisy dataset, and
 a more common approach is to inject synthetic textual noise into a relatively clean dataset.
 
 Thus, to carry out a quantitative study, we choose to simulate different *within-document* 
@@ -66,11 +66,11 @@ respectively. Note that, De-Ranker_SD is further denoised on top of BERT_O.
 
 ## Robustness Evaluation
 We provide `run_bert_rerank_eval.sh` script to perform re-ranking on initial ranking lists with original or noisy 
-texts. Before that, we need to convert query-passage pairs into features using `convert_pairs_to_features.py` script. 
-We have released our used synthetic data in [Resources](https://github.com/cxa-unique/De-Ranker/#Resources), wherein 
-each text set (Dev, TREC 2019-2020 DL) contains one original initial ranking list with relatively clean text, 
-and ten types of noisy initial ranking lists. By comparing re-ranking results of `BERT_O` on these initial ranking lists, 
-we can examine the individual impact of different synthetic textual noises.
+texts. Before re-ranking, we need to convert query-passage pairs into input features using `convert_pairs_to_features.py` 
+script. We have released our used evaluation data in [Resources](https://github.com/cxa-unique/De-Ranker/#Resources), 
+wherein each test set (Dev, TREC 2019-2020 DL) contains one original initial ranking list with relatively clean text, 
+and other ten types of noisy initial ranking lists. By comparing re-ranking results of **BERT_O** on these initial 
+ranking lists, we can examine the individual impact of different synthetic textual noises.
 
 In our experiments, we also investigate whether these BERT re-rankers, especially our proposed De-Ranker, can
 effectively tackle natural textual noise in real-world text. That is, we further use 4 widely-used IR datasets 
@@ -136,7 +136,7 @@ all of them are trained on original and noisy MS MARCO passage datasets.
     and [albert_pytorch](https://github.com/lonePatient/albert_pytorch).
     You may need to modify the `run_classifier.py` script appropriately on the basis of our fine-tuning scripts in this repo.
 
-### Train Triples
+### Train Triples:
 The train triples used in our model training: [Train Triples](https://drive.google.com/file/d/1qDLYmU4yyie81oxEcIGyLxbkEK2-J9WO/view?usp=sharing).
 - Format: `query id \t positive id \t negative id \n`
 - It contains 400782 train queries and 4170450 train triples.
